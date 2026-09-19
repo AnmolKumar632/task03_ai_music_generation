@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NeuralHarmony - AI Music Generation Studio powered by Deep PyTorch LSTM models. Compose, synthesize, and export MIDI and WAV tracks in your browser.">
+    <title>NeuralHarmony — AI Music Studio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="background-glow"></div>
+    <div class="background-grid"></div>
+
+    <div class="app-shell">
+        <!-- Top Navigation / Brand Header -->
+        <header class="studio-header">
+            <div class="brand-group">
+                <div class="brand-logo">
+                    <span class="logo-icon">♬</span>
+                    <span class="pulse-ring"></span>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-title">NeuralHarmony</h1>
+                    <span class="brand-subtitle">Deep Learning Music Generator &bull; PyTorch LSTM</span>
+                </div>
+            </div>
+
+            <div class="header-status-group">
+                <div class="status-badge" id="modelStatusBadge">
+                    <span class="status-indicator"></span>
+                    <span id="modelStatusText">Connecting...</span>
+                </div>
+                <div class="badge-accent" id="deviceBadge">CPU</div>
+            </div>
+        </header>
+
+        <!-- Main Studio Grid -->
+        <main class="studio-workspace">
+            <!-- Left Panel: Composition Parameters -->
+            <section class="control-panel glass-card" aria-label="Music Generation Controls">
+                <div class="card-header">
+                    <h2 class="card-title">Studio Controls</h2>
+                    <span class="badge-pill">Master Deck</span>
+                </div>
+
+                <!-- Genre Presets Quick Rack -->
+                <div class="genre-presets-container">
+                    <label class="section-sublabel">Mood & Genre Presets</label>
+                    <div class="preset-buttons-grid">
+                        <button type="button" class="preset-btn active" data-preset="classical">Classical</button>
+                        <button type="button" class="preset-btn" data-preset="lofi">Lo-Fi Chill</button>
+                        <button type="button" class="preset-btn" data-preset="cyberpunk">Cyberpunk</button>
+                        <button type="button" class="preset-btn" data-preset="ambient">Ambient</button>
+                    </div>
+                </div>
+
+                <form id="generateForm" class="control-form" onsubmit="return false;">
+                    <!-- Instrument Timbre Selector -->
+                    <div class="form-group">
+                        <label for="instrumentSelect">Instrument Timbre</label>
+                        <select id="instrumentSelect" class="select-control">
+                            <option value="piano" selected>🎹 Grand Piano</option>
+                            <option value="electric_piano">✨ Rhodes / Electric Piano</option>
+                            <option value="synth_lead">⚡ Cyberpunk Synth Lead</option>
+                            <option value="strings">🎻 Warm Atmospheric Strings</option>
+                        </select>
+                    </div>
+
+                    <!-- Temperature Control -->
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="temperatureInput">Creativity (Temperature)</label>
+                            <span class="value-chip" id="tempValueDisplay">0.85</span>
+                        </div>
+                        <input type="range" id="temperatureInput" min="0.2" max="1.5" step="0.05" value="0.85" class="slider-control">
+                        <div class="slider-ticks">
+                            <span>Structured</span>
+                            <span>Balanced</span>
+                            <span>Expressive</span>
+                        </div>
+                    </div>
+
+                    <!-- Sequence Length Control -->
+                    <div class="form-group">
+                        <div class="label-row">
+                            <label for="lengthInput">Composition Length</label>
+                            <span class="value-chip" id="lengthValueDisplay">60 notes</span>
+                        </div>
+                        <input type="range" id="lengthInput" min="20" max="180" step="10" value="60" class="slider-control">
+                        <div class="slider-ticks">
+                            <span>20</span>
+                            <span>60</span>
+                            <span>120</span>
+                            <span>180</span>
+                        </div>
+                    </div>
+
+                    <!-- Tempo / Note Duration -->
+                    <div class="form-group">
+                        <label for="tempoSelect">Playback Pace & Tempo</label>
+                        <select id="tempoSelect" class="select-control">
+                            <option value="0.6">Andante (Slow, ~85 BPM)</option>
+                            <option value="0.4" selected>Moderato (Standard, ~120 BPM)</option>
+                            <option value="0.25">Allegro (Fast, ~160 BPM)</option>
+                        </select>
+                    </div>
+
+                    <!-- Audio FX Rack Section -->
+                    <div class="form-group fx-rack-card">
+                        <div class="label-row">
+                            <label class="fx-header-label">🎛 Audio DSP FX Rack</label>
+                            <span class="badge-pill fx-pill">Real-time</span>
+                        </div>
+                        <div class="fx-controls-grid">
+                            <div class="fx-control-item">
+                                <label for="reverbSpaceSelect">Reverb Space</label>
+                                <select id="reverbSpaceSelect" class="select-control fx-select">
+                                    <option value="off">Bypass (Dry)</option>
+                                    <option value="room">Acoustic Room</option>
+                                    <option value="cathedral" selected>Cathedral Hall</option>
+                                    <option value="cosmic">Cosmic Nebula</option>
+                                </select>
+                            </div>
+                            <div class="fx-control-item">
+                                <label for="delayFeedbackInput">Echo / Delay Mix</label>
+                                <input type="range" id="delayFeedbackInput" min="0" max="0.6" step="0.05" value="0.25" class="slider-control fx-slider">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Virtual Piano Keyboard for Custom Melody Prompt -->
+                    <div class="form-group keyboard-group">
+                        <div class="label-row">
+                            <label>Melody Prompt (Play Keys to Seed)</label>
+                            <button type="button" class="clear-seed-btn" id="clearSeedBtn" title="Clear custom prompt">Clear</button>
+                        </div>
+                        <div class="custom-prompt-tags" id="promptTagsContainer">
+                            <span class="prompt-placeholder">No seed notes played (Click keys or press A-K)</span>
+                        </div>
+                        <!-- 1 Octave Piano Keyboard C4 to C5 -->
+                        <div class="virtual-keyboard" id="virtualKeyboard">
+                            <button type="button" class="key white-key" data-pitch="60" data-note="C4" data-shortcut="A"><span>A<br>C4</span></button>
+                            <button type="button" class="key black-key" data-pitch="61" data-note="C#4" data-shortcut="W" style="left: 28px;"><span>W</span></button>
+                            <button type="button" class="key white-key" data-pitch="62" data-note="D4" data-shortcut="S"><span>S<br>D4</span></button>
+                            <button type="button" class="key black-key" data-pitch="63" data-note="D#4" data-shortcut="E" style="left: 76px;"><span>E</span></button>
+                            <button type="button" class="key white-key" data-pitch="64" data-note="E4" data-shortcut="D"><span>D<br>E4</span></button>
+                            <button type="button" class="key white-key" data-pitch="65" data-note="F4" data-shortcut="F"><span>F<br>F4</span></button>
+                            <button type="button" class="key black-key" data-pitch="66" data-note="F#4" data-shortcut="T" style="left: 172px;"><span>T</span></button>
+                            <button type="button" class="key white-key" data-pitch="67" data-note="G4" data-shortcut="G"><span>G<br>G4</span></button>
+                            <button type="button" class="key black-key" data-pitch="68" data-note="G#4" data-shortcut="Y" style="left: 220px;"><span>Y</span></button>
+                            <button type="button" class="key white-key" data-pitch="69" data-note="A4" data-shortcut="H"><span>H<br>A4</span></button>
+                            <button type="button" class="key black-key" data-pitch="70" data-note="A#4" data-shortcut="U" style="left: 268px;"><span>U</span></button>
+                            <button type="button" class="key white-key" data-pitch="71" data-note="B4" data-shortcut="J"><span>J<br>B4</span></button>
+                            <button type="button" class="key white-key" data-pitch="72" data-note="C5" data-shortcut="K"><span>K<br>C5</span></button>
+                        </div>
+                    </div>
+
+                    <!-- Primary Action Button -->
+                    <button type="button" id="generateBtn" class="primary-btn">
+                        <span class="btn-icon">⚡</span>
+                        <span class="btn-text">Generate Composition</span>
+                        <span class="btn-glow"></span>
+                    </button>
+                </form>
+
+                <!-- Model Specs Quick Card -->
+                <div class="specs-box">
+                    <div class="spec-item">
+                        <span class="spec-label">Neural Model:</span>
+                        <span class="spec-val">PyTorch MusicLSTM</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Vocabulary:</span>
+                        <span class="spec-val" id="vocabSizeVal">-- tokens</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Output Formats:</span>
+                        <span class="spec-val">MIDI (.mid) + Audio (.wav)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Visualizer & Player -->
+            <section class="stage-panel glass-card" aria-label="Interactive Music Player and Visualizer">
+                <!-- Top Player Header -->
+                <div class="stage-header">
+                    <div>
+                        <h2 class="card-title" id="trackTitle">No Composition Loaded</h2>
+                        <span class="track-meta" id="trackMeta">Click "Generate Composition" to start</span>
+                    </div>
+                    <div class="track-actions">
+                        <button type="button" id="toggleAnalyticsBtn" class="action-btn">
+                            <span>📊 Analytics</span>
+                        </button>
+                        <a id="downloadMidiBtn" class="action-btn download-btn disabled" href="#" download>
+                            <span>📥 MIDI (.mid)</span>
+                        </a>
+                        <button type="button" id="downloadWavBtn" class="action-btn download-btn disabled">
+                            <span>🔊 Audio (.wav)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Melodic Analytics Drawer (Collapsible) -->
+                <div class="analytics-drawer hidden" id="analyticsDrawer">
+                    <div class="analytics-header">
+                        <span class="analytics-title">📈 Musical Analytics & Harmonic Breakdown</span>
+                        <span class="key-badge" id="detectedKeyBadge">Key: Estimating...</span>
+                    </div>
+                    <div class="analytics-stats-row">
+                        <div class="analytics-metric-card">
+                            <span class="metric-num" id="metricTotalNotes">0</span>
+                            <span class="metric-label">Total Notes</span>
+                        </div>
+                        <div class="analytics-metric-card">
+                            <span class="metric-num" id="metricChordRatio">0%</span>
+                            <span class="metric-label">Harmonic Chords</span>
+                        </div>
+                        <div class="analytics-metric-card">
+                            <span class="metric-num" id="metricDensity">0.0</span>
+                            <span class="metric-label">Notes / Sec</span>
+                        </div>
+                        <div class="analytics-metric-card">
+                            <span class="metric-num" id="metricDuration">0s</span>
+                            <span class="metric-label">Duration</span>
+                        </div>
+                    </div>
+                    <!-- Pitch Class Distribution Bar Histogram -->
+                    <div class="pitch-distribution-container">
+                        <span class="distribution-label">Pitch Class Frequencies (C through B)</span>
+                        <div class="pitch-bars-row" id="pitchBarsRow">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Piano Roll Canvas Visualizer -->
+                <div class="visualizer-wrapper">
+                    <canvas id="pianoRollCanvas" width="900" height="320"></canvas>
+                    <div class="visualizer-placeholder" id="canvasPlaceholder">
+                        <div class="placeholder-icon">🎹</div>
+                        <p>Generate a track to see note visualizations</p>
+                    </div>
+                </div>
+
+                <!-- Transport / Audio Player Controls -->
+                <div class="transport-deck">
+                    <div class="timeline-container">
+                        <span class="time-label" id="currentTimeLabel">00:00</span>
+                        <div class="progress-bar-bg" id="progressBarContainer">
+                            <div class="progress-bar-fill" id="progressBarFill"></div>
+                            <div class="scrub-handle" id="scrubHandle"></div>
+                        </div>
+                        <span class="time-label" id="totalTimeLabel">00:00</span>
+                    </div>
+
+                    <div class="transport-controls">
+                        <button type="button" class="transport-btn" id="stopBtn" title="Stop">
+                            <span>⏹</span>
+                        </button>
+                        <button type="button" class="transport-btn play-btn" id="playPauseBtn" title="Play / Pause">
+                            <span id="playIcon">▶</span>
+                        </button>
+                        <button type="button" class="transport-btn toggle-btn" id="loopBtn" title="Toggle Loop">
+                            <span>🔁</span>
+                        </button>
+
+                        <div class="volume-group">
+                            <span class="volume-icon">🔊</span>
+                            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.75" class="volume-slider">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Generations Shelf -->
+                <div class="recent-shelf">
+                    <h3 class="shelf-title">Session Tracks</h3>
+                    <div class="track-list" id="trackHistoryList">
+                        <div class="empty-history">No tracks generated in this session yet.</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

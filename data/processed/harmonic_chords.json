@@ -1,0 +1,62 @@
+[
+  {
+    "pitch": [
+      60,
+      64,
+      67
+    ],
+    "offset": 0.0,
+    "duration": 1.0,
+    "is_chord": true
+  },
+  {
+    "pitch": [
+      62,
+      65,
+      69
+    ],
+    "offset": 1.0,
+    "duration": 1.0,
+    "is_chord": true
+  },
+  {
+    "pitch": [
+      64,
+      67,
+      71
+    ],
+    "offset": 2.0,
+    "duration": 1.0,
+    "is_chord": true
+  },
+  {
+    "pitch": [
+      65,
+      69,
+      72
+    ],
+    "offset": 3.0,
+    "duration": 1.0,
+    "is_chord": true
+  },
+  {
+    "pitch": [
+      67,
+      71,
+      74
+    ],
+    "offset": 4.0,
+    "duration": 1.0,
+    "is_chord": true
+  },
+  {
+    "pitch": [
+      60,
+      64,
+      67
+    ],
+    "offset": 5.0,
+    "duration": 1.0,
+    "is_chord": true
+  }
+]
