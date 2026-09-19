@@ -1,5 +1,9 @@
 # NeuralHarmony — AI Music Studio
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/AnmolKumar632/task03_ai_music_generation/main/assets/neuralharmony-banner.svg" alt="NeuralHarmony banner" width="100%" />
+</p>
+
 <div align="center">
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
